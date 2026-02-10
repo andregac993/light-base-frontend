@@ -1,10 +1,16 @@
 import { mapToDatabase } from './client-mapper';
 import { db } from './database';
+import { DuplicateError, NotFoundError } from './errors';
 
-import type { CreateClientDTO, UpdateClientDTO } from '@/types';
+import type { CreateClientDTO, UpdateClientDTO } from '@/features/clients';
 
 export const clientsService = {
   async create(data: CreateClientDTO): Promise<string> {
+    const existing = await db.clients.where('cpf').equals(data.cpf).first();
+    if (existing) {
+      throw new DuplicateError('CPF', data.cpf);
+    }
+
     const id = crypto.randomUUID();
     const now = new Date();
 
@@ -18,26 +24,31 @@ export const clientsService = {
     return id;
   },
 
-  async update(id: string, data: UpdateClientDTO): Promise<boolean> {
+  async update(id: string, data: UpdateClientDTO): Promise<void> {
     const existing = await db.clients.get(id);
-    if (!existing) return false;
+    if (!existing) {
+      throw new NotFoundError('Cliente', id);
+    }
 
-    const updateData: Record<string, unknown> = { updated_at: new Date() };
+    if (data.cpf && data.cpf !== existing.cpf) {
+      const cpfExists = await db.clients.where('cpf').equals(data.cpf).first();
+      if (cpfExists) {
+        throw new DuplicateError('CPF', data.cpf);
+      }
+    }
 
-    if (data.name !== undefined) updateData.name = data.name;
-    if (data.phone !== undefined) updateData.phone = data.phone;
-    if (data.cpf !== undefined) updateData.cpf = data.cpf;
-    if (data.carPlate !== undefined) updateData.car_plate = data.carPlate;
-
-    await db.clients.update(id, updateData);
-    return true;
+    await db.clients.update(id, {
+      ...mapToDatabase({ ...existing, ...data } as CreateClientDTO),
+      updated_at: new Date(),
+    });
   },
 
-  async delete(id: string): Promise<boolean> {
+  async remove(id: string): Promise<void> {
     const existing = await db.clients.get(id);
-    if (!existing) return false;
+    if (!existing) {
+      throw new NotFoundError('Cliente', id);
+    }
 
     await db.clients.delete(id);
-    return true;
   },
 };

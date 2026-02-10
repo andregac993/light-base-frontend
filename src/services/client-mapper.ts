@@ -1,5 +1,5 @@
 import type { ClientModel } from './database';
-import type { Client, CreateClientDTO } from '@/types';
+import type { Client, CreateClientDTO } from '@/features/clients';
 
 export function mapFromDatabase(model: ClientModel): Client {
   return {
