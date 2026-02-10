@@ -73,9 +73,8 @@ export default function HomePage() {
             gerencie todos os seus clientes em um só lugar.
           </Typography>
 
-          <Link href={ROUTES.CLIENTS.LIST} passHref legacyBehavior>
+          <Link href={ROUTES.CLIENTS.LIST} style={{ textDecoration: 'none' }}>
             <Button
-              component="a"
               variant="contained"
               size="large"
               endIcon={<ArrowForwardIcon aria-hidden="true" />}

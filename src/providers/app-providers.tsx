@@ -2,6 +2,7 @@
 
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { ErrorFallback } from '@/components/patterns';
@@ -18,13 +19,15 @@ interface AppProvidersProps {
 
 export function AppProviders({ children }: AppProvidersProps) {
   return (
-    <MuiThemeProvider theme={theme}>
-      <CssBaseline />
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <FeedbackProvider>
-          <ConfirmProvider>{children}</ConfirmProvider>
-        </FeedbackProvider>
-      </ErrorBoundary>
-    </MuiThemeProvider>
+    <AppRouterCacheProvider>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <FeedbackProvider>
+            <ConfirmProvider>{children}</ConfirmProvider>
+          </FeedbackProvider>
+        </ErrorBoundary>
+      </MuiThemeProvider>
+    </AppRouterCacheProvider>
   );
 }
